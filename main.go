@@ -96,24 +96,6 @@ const (
 
 var database *sql.DB
 
-
-// MVP TODOs:
-// [ ] Switch to PromptUI
-// [ ] Option to add configuration file
-// 		[ ] Money Sources
-// 		[ ] Date format
-// 		[ ] Categories
-// [ ] Write data to home folder
-// [ ] Make sure it plays well with SQLite3 UI
-// [ ] Add cli option for
-// 		[ ] Add
-// 		[ ] Delete by transaction ID
-// 		[ ] List
-// 		[ ] Reports
-// 				[ ] By Date
-// 				[ ] By Source
-// 				[ ] By Category
-
 func main() {
 
 	// the questions to ask
