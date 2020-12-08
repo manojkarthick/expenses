@@ -1,4 +1,4 @@
-module github.com/manojkarthick/expensetrack
+module github.com/manojkarthick/expense-logger
 
 go 1.14
 
