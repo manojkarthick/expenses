@@ -2,11 +2,14 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/olekukonko/tablewriter"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 type Answer struct {
@@ -25,9 +28,15 @@ type TransactionInfo struct {
 	txnDate string
 }
 
+type Configuration struct {
+	DbName string `json:"db"`
+	CsvName string `json:"csv"`
+}
+
 const (
-	ExpensesFile = "expenses.csv"
-	ExpensesDB   = "./expenses.db"
+	ConfigFile          = ".expense-logger.json"
+	DefaultExpensesFile = "expenses.csv"
+	DefaultExpensesDB   = "./expenses.db"
 
 	// add all question names here
 	NameItem     = "item"
@@ -98,6 +107,40 @@ var database *sql.DB
 
 func main() {
 
+	// parse config
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Errorf("could not read user's home directory. exiting")
+		os.Exit(1)
+	}
+
+	configFilePath := filepath.Join(home, ConfigFile)
+
+	var expensesDB string
+	var expensesFile string
+	if _, err := os.Stat(configFilePath); err == nil {
+		file, _ := os.Open(configFilePath)
+		defer file.Close()
+
+		decoder := json.NewDecoder(file)
+		configuration := Configuration{}
+		decodeErr := decoder.Decode(&configuration)
+		if decodeErr != nil {
+			fmt.Errorf("could not decode configuration file %s", configFilePath)
+			os.Exit(1)
+		}
+
+		expensesDB = configuration.DbName
+		expensesFile = configuration.CsvName
+
+	} else if os.IsNotExist(err) {
+		expensesDB = DefaultExpensesDB
+		expensesFile = DefaultExpensesFile
+	} else {
+		fmt.Errorf("unknown error encountered. exiting")
+		os.Exit(1)
+	}
+
 	// the questions to ask
 	var expenseQuestions = []*survey.Question{
 		{
@@ -164,7 +207,7 @@ func main() {
 
 	answer := Answer{}
 
-	err := survey.Ask(expenseQuestions, &answer)
+	err = survey.Ask(expenseQuestions, &answer)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -176,24 +219,37 @@ func main() {
 		txnDate: GetTransactionDate(answer.Date),
 	}
 
-	// print the answers
-	fmt.Printf("Transaction Date: %s\n", transaction.txnId)
-	fmt.Printf("Transaction Date: %s\n", transaction.txnDate)
-	fmt.Printf("Item: %s\n", transaction.answer.Item)
-	fmt.Printf("Cost: %f\n", transaction.answer.Cost)
-	fmt.Printf("Location: %s\n", transaction.answer.Location)
-	fmt.Printf("Category: %s\n", transaction.answer.Category)
-	fmt.Printf("Source: %s\n", transaction.answer.Source)
-	fmt.Printf("Notes: %s\n", transaction.answer.Notes)
+	tableData := make([][]string, 8)
+	tableData = append(tableData, []string{"ID", transaction.txnId})
+	tableData = append(tableData, []string{"Date", transaction.txnDate})
+	tableData = append(tableData, []string{"Item", transaction.answer.Item})
+	tableData = append(tableData, []string{"Cost", fmt.Sprintf("%f", transaction.answer.Cost)})
+	tableData = append(tableData, []string{"Location", transaction.answer.Location})
+	tableData = append(tableData, []string{"Category", transaction.answer.Category})
+	tableData = append(tableData, []string{"Source", transaction.answer.Source})
+	tableData = append(tableData, []string{"Notes", transaction.answer.Notes})
 
-	file, err := os.OpenFile(ExpensesFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0744)
+	// print the answers
+	fmt.Printf("\n\n")
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Info", "Value"})
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetBorder(false)
+	for _, v := range tableData {
+		table.Append(v)
+	}
+	table.Render()
+
+
+	file, err := os.OpenFile(expensesFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0744)
 	if err != nil {
 		log.Fatal("Could not access transactionsFile: ", err)
 	}
 	WriteTransactionToCSV(file, &transaction)
 	defer file.Close()
 
-	database, err = sql.Open("sqlite3", ExpensesDB)
+	database, err = sql.Open("sqlite3", expensesDB)
 	if err != nil {
 		log.Fatal("Could not open sqlite database: ", err)
 	}
