@@ -117,7 +117,7 @@ var deleteCmd = &cobra.Command{
 					}
 				}()
 
-				logger.Infof("%d rows affected in csv %s", rowsAffected, config.DbName)
+				logger.Infof("%d rows affected in db %s", rowsAffected, config.DbName)
 
 			} else {
 				// database is disabled, ignore and warn
