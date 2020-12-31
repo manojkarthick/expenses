@@ -1,0 +1,6 @@
+.idea/
+*.csv
+*.db
+expense-logger
+expenses
+
