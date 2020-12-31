@@ -1,4 +1,4 @@
-# Expenses
+# Expenses [![GitHub release](https://img.shields.io/github/release/manojkarthick/expenses.svg)](https://github.com/manojkarthick/expenses/releases/) ![build](https://github.com/manojkarthick/expenses/workflows/release/badge.svg)
 An interactive command line expense logger. Answer a series of questions to log your expenses. Currently writes to CSV and SQLite backends.
 
 ## Installation
