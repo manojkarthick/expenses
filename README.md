@@ -2,11 +2,15 @@
 An interactive command line expense logger. Answer a series of questions to log your expenses. Currently writes to CSV and SQLite backends.
 
 ## Installation
-You can download pre-built binaries [here](https://github.com/manojkarthick/expenses/releases).
 
-View the tool in action here:
- 
- [![asciicast](https://asciinema.org/a/381989.svg)](https://asciinema.org/a/381989)
+### Recommended method
+You can download pre-built binaries for Linux, macOS and Windows [here](https://github.com/manojkarthick/expenses/releases). Just add the binary to your path and you're good to go!
+
+### Alternative method
+Alternatively, if you have go installed, you can use go get to directly download the package from the master branch:
+```
+go get github.com/manojkarthick/expenses
+``` 
 
 ### Building from source
 You can use the Makefile present in the directory to build the project. Make sure you have Golang v1.14.x installed on your system.
@@ -18,7 +22,8 @@ make dev-build
 ./expenses help
 ```
 
-### Running
+## Running
+
 To add a new expense, run `expenses add` and answer the questions that follow. Example below:
 
 ```
@@ -30,8 +35,11 @@ $ expenses add
 ? Source of Funds? Chequing
 ? Any notes?
 ? Transaction date Today
-
 ```
+
+View the tool in action here:
+ 
+ [![asciicast](https://asciinema.org/a/381989.svg)](https://asciinema.org/a/381989)
 
 ### Available Commands
 Run `expenses help` to view the list of commands available:
