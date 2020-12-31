@@ -24,7 +24,11 @@ var dbCmd = &cobra.Command{
 				logger.Fatalf("Could not open SQLite database %s: %v: ", config.DbName, err)
 			}
 			rows, err := database.Query(selectStatementSQL)
-			defer database.Close()
+			defer func() {
+				if err := database.Close(); err != nil {
+					logger.Fatal(err)
+				}
+			}()
 			if err != nil {
 				logger.Fatalf("Could not read from database: %s", config.DbName)
 			}
