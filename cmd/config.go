@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -12,21 +13,21 @@ var configCmd = &cobra.Command{
 	Short: "Show the current configuration used by expenses",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		logger.Info("Current configuration:")
+		fmt.Print("Current configuration: \n\n")
 
-		logger.Infof("Disable Database: %t", config.DisableDb)
+		fmt.Printf("Disable Database: %t\n", config.DisableDb)
 		if !config.DisableDb {
-			logger.Infof("Database Name: %s", config.DbName)
+			fmt.Printf("Database Name: %s\n", config.DbName)
 		}
 
-		logger.Infof("Disable CSV: %t", config.DisableCSV)
+		fmt.Printf("Disable CSV: %t\n", config.DisableCSV)
 		if !config.DisableCSV {
-			logger.Infof("CSV File Name: %s", config.CsvName)
+			fmt.Printf("CSV File Name: %s\n", config.CsvName)
 		}
 
-		logger.Info("Disable Result: %t", config.DisableResult)
-		logger.Infof("Categories: %s", strings.Join(config.Categories, ", "))
-		logger.Infof("Funds: %s", strings.Join(config.Funds, ", "))
+		fmt.Printf("Disable Result: %t\n", config.DisableResult)
+		fmt.Printf("Categories: %s\n", strings.Join(config.Categories, ", "))
+		fmt.Printf("Funds: %s\n", strings.Join(config.Funds, ", "))
 
 	},
 }
