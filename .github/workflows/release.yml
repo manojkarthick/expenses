@@ -26,4 +26,4 @@ jobs:
           project_path: "."
           binary_name: "expenses"
           extra_files: LICENSE README.md
-          ldflags: "-X expenses/cmd.Version=v0.1.0"
+          ldflags: "-X github.com/manojkarthick/expenses/cmd.Version=v0.1.1"
