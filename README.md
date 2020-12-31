@@ -4,13 +4,6 @@ An interactive command line expense logger. Answer a series of questions to log 
 ## Installation
 You can download pre-built binaries [here](https://github.com/manojkarthick/expenses/releases).
 
-```
-wget https://github.com/manojkarthick/expenses/releases/download/v0.1.0/expenses-<version>-<os>-<arch>.tar.gz
-tar -xzvf expenses-<version>-<os>-<arch>.tar.gz
-chmod u+x expenses
-mv expenses /usr/local/bin/
-```
-
 View the tool in action here:
  
  [![asciicast](https://asciinema.org/a/381989.svg)](https://asciinema.org/a/381989)

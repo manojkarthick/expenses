@@ -3,27 +3,59 @@
 name: release
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  releases-matrix:
-    name: Release Go Binary
-    runs-on: ubuntu-latest
+  release:
     strategy:
       matrix:
-        # build and publish in parallel: linux/386, linux/amd64, windows/386, windows/amd64, darwin/386, darwin/amd64
-        goos: [linux, windows, darwin]
-        goarch: ["386", amd64]
+        go_version: [ 1.14.x ]
+    runs-on: ubuntu-latest
+    env:
+      # update on new release
+      EXPENSES_VERSION: "0.2.0"
     steps:
-      - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@v1.12
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          goos: ${{ matrix.goos }}
-          goarch: ${{ matrix.goarch }}
-          goversion: "https://dl.google.com/go/go1.14.6.linux-amd64.tar.gz"
-          project_path: "."
-          binary_name: "expenses"
-          extra_files: LICENSE README.md
-          ldflags: "-X github.com/manojkarthick/expenses/cmd.Version=v0.1.1"
+          go-version: ${{ matrix.go_version }}
+      - name: Build with xgo
+        uses: crazy-max/ghaction-xgo@v1
+        with:
+          xgo_version: latest
+          go_version: ${{ matrix.go_version }}
+          dest: build
+          prefix: expenses
+          targets: windows/amd64,linux/amd64,darwin/amd64
+          v: true
+          x: false
+          # update on new release
+          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.0
+      - name: Updated build artifact names
+        run: |
+          echo "Updated artifact names to use common naming scheme"
+          ls -al build/
+          mv build/expenses-darwin-10.6-amd64 build/expenses-${EXPENSES_VERSION}-macos-amd64
+          mv build/expenses-linux-amd64 build/expenses-${EXPENSES_VERSION}-linux-amd64
+          mv build/expenses-windows-4.0-amd64.exe build/expenses-${EXPENSES_VERSION}-windows-amd64.exe
+      - name: Create Release
+        uses: actions/create-release@v1.0.0
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Assets
+        uses: glentiki/xbin-release-action@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          assets_path: ./build
