@@ -78,9 +78,9 @@ const (
 	DateFormat = "2006/01/02"
 )
 
-// logCmd represents the log command
-var logCmd = &cobra.Command{
-	Use:   "log",
+// addCmd represents the log command
+var addCmd = &cobra.Command{
+	Use:   "add",
 	Short: "Log your expenses to the file/database",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger.Debugf("Running log command")
@@ -122,7 +122,7 @@ var logCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(logCmd)
+	rootCmd.AddCommand(addCmd)
 }
 
 func GetTransactionDate(inputDate string) string {
