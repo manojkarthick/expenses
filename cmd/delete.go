@@ -30,7 +30,6 @@ var deleteCmd = &cobra.Command{
 
 			// if csv is not disabled, proceed
 			if !config.DisableCSV {
-				logger.Debug("###############################################")
 				logger.Debug("Starting CSV operations..")
 				records, err := utils.ReadCSVFile(config.CsvName)
 				if err != nil {
@@ -69,7 +68,6 @@ var deleteCmd = &cobra.Command{
 
 			// if database is not disabled, proceed
 			if !config.DisableDb {
-				logger.Debug("###############################################")
 				logger.Debug("Starting DB operations..")
 
 				database, err := sql.Open("sqlite3", config.DbName)
@@ -86,9 +84,6 @@ var deleteCmd = &cobra.Command{
 					deleteStatement, err := txn.Prepare(deleteStatementSQL)
 					if err != nil {
 						logger.Fatal(err)
-					}
-					if err := deleteStatement.Close(); err != nil {
-						logger.Fatalf("Could not complete delete to database %s: %v", config.DbName, err)
 					}
 
 					rs, err := deleteStatement.Exec(txnId)
@@ -110,6 +105,10 @@ var deleteCmd = &cobra.Command{
 						logger.Debugf("Could not find transaction with ID: %s. Skipping.", txnId)
 					}
 					rowsAffected += localRowsAffected
+
+					if err := deleteStatement.Close(); err != nil {
+						logger.Fatalf("Could not complete delete to database %s: %v", config.DbName, err)
+					}
 				}
 
 				defer func() {
