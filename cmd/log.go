@@ -1,31 +1,10 @@
-/*
-Copyright © 2020 Manoj Karthick Selva Kumar <manojkarthick@ymail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 package cmd
 
 import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
-	"log"
+	"github.com/olekukonko/tablewriter"
 	"os"
 	"strconv"
 	"time"
@@ -99,40 +78,46 @@ const (
 	DateFormat = "2006/01/02"
 )
 
-var database *sql.DB
-
 // logCmd represents the log command
 var logCmd = &cobra.Command{
 	Use:   "log",
 	Short: "Log your expenses to the file/database",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("log called")
+		logger.Debugf("Running log command")
 
 		var transaction TransactionInfo
 		transaction.askQuestionsToUser()
 
-		file, err := os.OpenFile(config.CsvName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0744)
-		if err != nil {
-			log.Fatal("Could not access transactionsFile: ", err)
-		}
-		transaction.WriteTransactionToCSV(file)
-		defer func() {
-			if err := file.Close(); err != nil {
-				log.Fatalf("Could not close CSV file %s: %v", config.CsvName, err)
+		if !config.DisableCSV {
+			file, err := os.OpenFile(config.CsvName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0744)
+			if err != nil {
+				logger.Fatalf("Could not access transactionsFile: %v", err)
 			}
-		}()
-
-		database, err = sql.Open("sqlite3", config.DbName)
-		if err != nil {
-			log.Fatalf("Could not open SQLite database %s: %v: ", config.DbName, err)
+			transaction.WriteTransactionToCSV(file)
+			defer func() {
+				if err := file.Close(); err != nil {
+					logger.Fatalf("Could not close CSV file %s: %v", config.CsvName, err)
+				}
+			}()
 		}
-		transaction.WriteTransactionToDB(database)
-		defer func() {
-			if err := database.Close(); err != nil {
-				log.Fatalf("Could not close SQLite database %s: %v", config.DbName, err)
-			}
-		}()
 
+		if !config.DisableDb {
+			database, err := sql.Open("sqlite3", config.DbName)
+			if err != nil {
+				logger.Fatalf("Could not open SQLite database %s: %v: ", config.DbName, err)
+			}
+			transaction.WriteTransactionToDB(database)
+			defer func() {
+				if err := database.Close(); err != nil {
+					logger.Fatalf("Could not close SQLite database %s: %v", config.DbName, err)
+				}
+			}()
+
+		}
+
+		if !config.DisableResult {
+			transaction.RenderTransactionTable()
+		}
 	},
 }
 
@@ -152,7 +137,7 @@ func GetTransactionDate(inputDate string) string {
 			}
 			return nil
 		}), survey.WithValidator(survey.Required)); err != nil {
-			log.Fatal(err)
+			logger.Fatal(err)
 		}
 	} else if inputDate == DateYesterday {
 		result = time.Now().AddDate(0, 0, -1).Format(DateFormat)
@@ -161,7 +146,7 @@ func GetTransactionDate(inputDate string) string {
 	} else if inputDate == DateToday {
 		result = time.Now().Format(DateFormat)
 	} else {
-		fmt.Println("Could not understand the date.")
+		logger.Fatalf("Could not understand the given date")
 	}
 
 	return result
@@ -233,13 +218,16 @@ func (t *TransactionInfo) askQuestionsToUser() {
 
 	err := survey.Ask(expenseQuestions, &answer)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
 		return
 	}
 
+	txnId := utils.GetTransactionId()
+	logger.Debugf("Generated transaction ID: %s", txnId)
+
 	t.answer = answer
 	t.txnDate = GetTransactionDate(answer.Date)
-	t.txnId = utils.GetTransactionId()
+	t.txnId = txnId
 }
 
 func (t *TransactionInfo) FormatAsString() []string {
@@ -252,31 +240,36 @@ func (t *TransactionInfo) FormatAsString() []string {
 
 func (t *TransactionInfo) WriteTransactionToCSV(file *os.File) {
 	writer := csv.NewWriter(file)
-	if err := writer.Write(t.FormatAsString()); err != nil {
-		log.Fatal("Could not write to csv.")
+	rowString := t.FormatAsString()
+	logger.Debugf("Writing to CSV: %s", rowString)
+	if err := writer.Write(rowString); err != nil {
+		logger.Fatalf("Could not write to csv: %v", err)
 	}
 	writer.Flush()
+	logger.Debugf("Successfully wrote to CSV file: %s", config.CsvName)
 }
 
 func (t *TransactionInfo) WriteTransactionToDB(database *sql.DB) {
+	logger.Debugf("Executing Create table statement: %v", createStatementSQL)
 	_, err := database.Exec(createStatementSQL)
 	if err != nil {
-		log.Printf("%q: %s\n", err, createStatementSQL)
+		logger.Fatalf("Could not create database table: %q\n", err)
 		return
 	}
 
 	txn, err := database.Begin()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	insertStatement, err := txn.Prepare(insertStatementSQL)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
+	logger.Debugf("Inserted into database: %s", insertStatement)
 	defer func() {
 		if err := insertStatement.Close(); err != nil {
-			log.Fatalf("Could not complete insert to database %s: %v", config.DbName, err)
+			logger.Fatalf("Could not complete insert to database %s: %v", config.DbName, err)
 		}
 	}()
 
@@ -291,11 +284,36 @@ func (t *TransactionInfo) WriteTransactionToDB(database *sql.DB) {
 		t.answer.Notes,
 	)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	err = txn.Commit()
 	if err != nil {
-		log.Fatalf("Could not commit transaction to database %s: %v", config.DbName, err)
+		logger.Fatalf("Could not commit transaction to database %s: %v", config.DbName, err)
 	}
+	logger.Debugf("Successfully committed transaction to database: %s", config.DbName)
 
+}
+
+func (t *TransactionInfo) RenderTransactionTable() {
+	tableData := make([][]string, 8)
+	tableData = append(tableData, []string{"ID", t.txnId})
+	tableData = append(tableData, []string{"Date", t.txnDate})
+	tableData = append(tableData, []string{"Item", t.answer.Item})
+	tableData = append(tableData, []string{"Cost", fmt.Sprintf("%f", t.answer.Cost)})
+	tableData = append(tableData, []string{"Location", t.answer.Location})
+	tableData = append(tableData, []string{"Category", t.answer.Category})
+	tableData = append(tableData, []string{"Source", t.answer.Source})
+	tableData = append(tableData, []string{"Notes", t.answer.Notes})
+
+	fmt.Println("")
+
+	// print the answers
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Info", "Value"})
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetBorder(false)
+	for _, v := range tableData {
+		table.Append(v)
+	}
+	table.Render()
 }
