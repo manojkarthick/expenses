@@ -91,7 +91,7 @@ var logCmd = &cobra.Command{
 		if !config.DisableCSV {
 			file, err := os.OpenFile(config.CsvName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0744)
 			if err != nil {
-				logger.Fatalf("Could not access transactionsFile: %v", err)
+				logger.Fatalf("Could not access transactions file: %v", err)
 			}
 			transaction.WriteTransactionToCSV(file)
 			defer func() {
