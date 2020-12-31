@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "expenses/cmd"
+import "github.com/manojkarthick/expenses/cmd"
 
 func main() {
 	cmd.Execute()

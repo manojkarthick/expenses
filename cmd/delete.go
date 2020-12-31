@@ -3,7 +3,7 @@ package cmd
 import (
 	"database/sql"
 	"encoding/csv"
-	"expenses/utils"
+	"github.com/manojkarthick/expenses/utils"
 	"os"
 	"strings"
 

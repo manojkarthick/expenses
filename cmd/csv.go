@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"expenses/utils"
+	"github.com/manojkarthick/expenses/utils"
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

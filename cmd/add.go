@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"expenses/utils"
+	"github.com/manojkarthick/expenses/utils"
 	"github.com/AlecAivazis/survey/v2"
 	_ "github.com/mattn/go-sqlite3"
 	_ "github.com/olekukonko/tablewriter"
