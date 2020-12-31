@@ -30,8 +30,10 @@ var csvCmd = &cobra.Command{
 				table.Append(record[0:7])
 			}
 			table.Render()
+		} else {
+			logger.Warnf("CSV has been disabled, please re-enable and run this command again.")
 		}
-		logger.Errorf("CSV has been disabled, please re-enable and run this command again.")
+
 	},
 }
 
