@@ -100,7 +100,9 @@ Create a file under your home directory called `.expenses.yaml`. You can modify 
 6. `funds`: Provide possible source of funds for the expense (`default = VISA, Mastercard, Chequing, Savings, Cash, PayPal`)
  
 
+### TODO
 
+* [ ] Statistics/Spending reports by Time period and category
 
 
 
