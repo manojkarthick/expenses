@@ -7,6 +7,8 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/manojkarthick/expenses/utils"
 )
 
 const selectStatementSQL = `
@@ -19,7 +21,7 @@ var dbCmd = &cobra.Command{
 	Short: "Display contents from your expenses database",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !config.DisableDb {
-			database, err := sql.Open("sqlite3", config.DbName)
+			database, err := sql.Open("sqlite3", utils.PreprocessFilepath(config.DbName))
 			if err != nil {
 				logger.Fatalf("Could not open SQLite database %s: %v: ", config.DbName, err)
 			}
