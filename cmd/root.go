@@ -134,7 +134,7 @@ func initConfig() {
 		if !config.DisableCSV {
 			config.CsvName, err = homedir.Expand(config.CsvName)
 			if err != nil {
-				logger.Fatalf("Unable to process the database file path: %v", err)
+				logger.Fatalf("Unable to process the csv file path: %v", err)
 			}
 		}
 	}
