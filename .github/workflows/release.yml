@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # update on new release
-      EXPENSES_VERSION: "0.2.0"
+      EXPENSES_VERSION: "0.2.1"
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -34,7 +34,7 @@ jobs:
           v: true
           x: false
           # update on new release
-          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.0
+          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.1
       - name: Updated build artifact names
         run: |
           echo "Updated artifact names to use common naming scheme"
