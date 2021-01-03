@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/mitchellh/go-homedir"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"os"
@@ -20,11 +19,7 @@ var dbCmd = &cobra.Command{
 	Short: "Display contents from your expenses database",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !config.DisableDb {
-			dbPath, err := homedir.Expand(config.DbName)
-			if err != nil {
-				logger.Fatalf("Could not open SQlite database %s: %v", config.DbName, err)
-			}
-			database, err := sql.Open("sqlite3", dbPath)
+			database, err := sql.Open("sqlite3", config.DbName)
 			if err != nil {
 				logger.Fatalf("Could not open SQLite database %s: %v: ", config.DbName, err)
 			}
