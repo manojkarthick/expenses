@@ -122,7 +122,21 @@ func initConfig() {
 
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		logger.Fatal("Could not decode viper configuration struct: %v", err)
+		logger.Fatalf("Could not decode viper configuration struct: %v", err)
+	} else {
+		// Expand both the csv and db filepaths if enabled
+		if !config.DisableDb {
+			config.DbName, err = homedir.Expand(config.DbName)
+			if err != nil {
+				logger.Fatalf("Unable to process the database file path: %v", err)
+			}
+		}
+		if !config.DisableCSV {
+			config.CsvName, err = homedir.Expand(config.CsvName)
+			if err != nil {
+				logger.Fatalf("Unable to process the csv file path: %v", err)
+			}
+		}
 	}
 
 }

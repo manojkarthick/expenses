@@ -2,9 +2,10 @@ package utils
 
 import (
 	"encoding/csv"
+	"os"
+
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func GetTransactionId() string {
