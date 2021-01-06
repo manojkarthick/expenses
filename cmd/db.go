@@ -13,6 +13,10 @@ const selectStatementSQL = `
 	SELECT txnId, txnDate, item, cost, location, category, "source" FROM expenses
 `
 
+const totalStatementSQL = `
+	SELECT SUM(cost) FROM expenses
+`
+
 // dbCmd represents the db command
 var dbCmd = &cobra.Command{
 	Use:   "db",
@@ -41,8 +45,6 @@ var dbCmd = &cobra.Command{
 			table.SetColumnAlignment([]int{left, left, left, right, left, left, left})
 			table.SetBorder(true)
 
-			var total float64
-
 			var txnId string
 			var txnDate string
 			var item string
@@ -53,12 +55,18 @@ var dbCmd = &cobra.Command{
 			for rows.Next() {
 				rows.Scan(&txnId, &txnDate, &item, &cost, &location, &category, &source)
 				table.Append([]string{txnId, txnDate, item, fmt.Sprintf("%.2f", cost), location, category, source})
-				total += cost
 			}
 
 			if showTotal {
-				// Add footer
-				table.SetFooter([]string{"", "", "Total", fmt.Sprintf("%.2f", total), "", "", ""})
+				if rows, err := database.Query(totalStatementSQL); err != nil {
+					logger.Warnf("Unable to calculate the total: %v", err)
+				} else {
+					var total float64
+					rows.Next()
+					rows.Scan(&total)
+					// Add footer
+					table.SetFooter([]string{"", "", "Total", fmt.Sprintf("%.2f", total), "", "", ""})
+				}
 			}
 			table.Render()
 
