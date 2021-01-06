@@ -4,6 +4,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	showTotal bool
+)
+
 // showCmd represents the show command
 var showCmd = &cobra.Command{
 	Use:   "show",
@@ -11,5 +15,6 @@ var showCmd = &cobra.Command{
 }
 
 func init() {
+	showCmd.PersistentFlags().BoolVar(&showTotal, "total", false, "Show total")
 	rootCmd.AddCommand(showCmd)
 }

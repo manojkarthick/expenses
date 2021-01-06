@@ -36,7 +36,12 @@ var dbCmd = &cobra.Command{
 			table := tablewriter.NewWriter(os.Stdout)
 			table.SetHeader([]string{"Transaction ID", "Date", "Item", "Cost", "Location", "Category", "Source"})
 			table.SetAlignment(tablewriter.ALIGN_LEFT)
+			left := tablewriter.ALIGN_LEFT
+			right := tablewriter.ALIGN_RIGHT
+			table.SetColumnAlignment([]int{left, left, left, right, left, left, left})
 			table.SetBorder(true)
+
+			var total float64
 
 			var txnId string
 			var txnDate string
@@ -47,7 +52,13 @@ var dbCmd = &cobra.Command{
 			var source string
 			for rows.Next() {
 				rows.Scan(&txnId, &txnDate, &item, &cost, &location, &category, &source)
-				table.Append([]string{txnId, txnDate, item, fmt.Sprintf("%f", cost), location, category, source})
+				table.Append([]string{txnId, txnDate, item, fmt.Sprintf("%.2f", cost), location, category, source})
+				total += cost
+			}
+
+			if showTotal {
+				// Add footer
+				table.SetFooter([]string{"", "", "Total", fmt.Sprintf("%.2f", total), "", "", ""})
 			}
 			table.Render()
 
