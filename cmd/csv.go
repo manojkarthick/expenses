@@ -33,7 +33,7 @@ var csvCmd = &cobra.Command{
 			log.Debug("Starting table render")
 			for _, record := range records {
 				table.Append(reorderRecord(record[0:7]))
-				cost, err := strconv.ParseFloat(record[3], 64)
+				cost, err := strconv.ParseFloat(record[6], 64)
 				if err != nil {
 					logger.Fatalf("Unable to parse cost value: %s", record[3])
 				}
@@ -57,10 +57,9 @@ func init() {
 
 // reorderRecord will essentially move "item" and "cost" as the last two elements
 func reorderRecord(record []string) []string {
-	newRecord := make([]string, len(record))
-	copy(newRecord[:2], record[:2])
-	copy(newRecord[2:5], record[4:])
-	copy(newRecord[5:], record[2:4])
+	item, cost := record[2], record[3]
+	copy(record[2:], record[4:])
+	record[5], record[6] = item, cost
 
-	return newRecord
+	return record
 }
