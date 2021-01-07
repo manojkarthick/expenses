@@ -23,16 +23,16 @@ var csvCmd = &cobra.Command{
 			log.Debugf("Read csv file: %s", config.CsvName)
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader([]string{"Transaction ID", "Date", "Item", "Cost", "Location", "Category", "Source"})
+			table.SetHeader([]string{"Transaction ID", "Date", "Location", "Category", "Source", "Item", "Cost"})
 			left := tablewriter.ALIGN_LEFT
 			right := tablewriter.ALIGN_RIGHT
-			table.SetColumnAlignment([]int{left, left, left, right, left, left, left, left, left})
+			table.SetColumnAlignment([]int{left, left, left, left, left, left, right})
 			table.SetBorder(true)
 
 			var total float64
 			log.Debug("Starting table render")
 			for _, record := range records {
-				table.Append(record[0:7])
+				table.Append(reorderRecord(record[0:7]))
 				cost, err := strconv.ParseFloat(record[3], 64)
 				if err != nil {
 					logger.Fatalf("Unable to parse cost value: %s", record[3])
@@ -41,7 +41,7 @@ var csvCmd = &cobra.Command{
 			}
 			if showTotal {
 				// Add footer
-				table.SetFooter([]string{"", "", "Total", fmt.Sprintf("%.0f", total), "", "", ""})
+				table.SetFooter([]string{"", "", "", "", "", "Total", fmt.Sprintf("%.2f", total)})
 			}
 			table.Render()
 		} else {
@@ -53,4 +53,14 @@ var csvCmd = &cobra.Command{
 
 func init() {
 	showCmd.AddCommand(csvCmd)
+}
+
+// reorderRecord will essentially move "item" and "cost" as the last two elements
+func reorderRecord(record []string) []string {
+	newRecord := make([]string, len(record))
+	copy(newRecord[:2], record[:2])
+	copy(newRecord[2:5], record[4:])
+	copy(newRecord[5:], record[2:4])
+
+	return newRecord
 }
