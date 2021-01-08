@@ -59,7 +59,7 @@ var dbCmd = &cobra.Command{
 
 			if showTotal {
 				if rows, err := database.Query(totalStatementSQL); err != nil {
-					logger.Warnf("Unable to calculate the total: %v", err)
+					logger.Fatalf("Unable to calculate the total: %v", err)
 				} else {
 					var total float64
 					rows.Next()
