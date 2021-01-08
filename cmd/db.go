@@ -13,6 +13,10 @@ const selectStatementSQL = `
 	SELECT txnId, txnDate, item, cost, location, category, "source" FROM expenses
 `
 
+const totalStatementSQL = `
+	SELECT SUM(cost) FROM expenses
+`
+
 // dbCmd represents the db command
 var dbCmd = &cobra.Command{
 	Use:   "db",
@@ -34,8 +38,11 @@ var dbCmd = &cobra.Command{
 			}
 
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader([]string{"Transaction ID", "Date", "Item", "Cost", "Location", "Category", "Source"})
+			table.SetHeader([]string{"Transaction ID", "Date", "Location", "Category", "Source", "Item", "Cost"})
 			table.SetAlignment(tablewriter.ALIGN_LEFT)
+			left := tablewriter.ALIGN_LEFT
+			right := tablewriter.ALIGN_RIGHT
+			table.SetColumnAlignment([]int{left, left, left, left, left, left, right})
 			table.SetBorder(true)
 
 			var txnId string
@@ -47,7 +54,19 @@ var dbCmd = &cobra.Command{
 			var source string
 			for rows.Next() {
 				rows.Scan(&txnId, &txnDate, &item, &cost, &location, &category, &source)
-				table.Append([]string{txnId, txnDate, item, fmt.Sprintf("%f", cost), location, category, source})
+				table.Append([]string{txnId, txnDate, location, category, source, item, fmt.Sprintf("%.2f", cost)})
+			}
+
+			if showTotal {
+				if rows, err := database.Query(totalStatementSQL); err != nil {
+					logger.Fatalf("Unable to calculate the total: %v", err)
+				} else {
+					var total float64
+					rows.Next()
+					rows.Scan(&total)
+					// Add footer
+					table.SetFooter([]string{"", "", "", "", "", "Total", fmt.Sprintf("%.2f", total)})
+				}
 			}
 			table.Render()
 

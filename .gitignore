@@ -3,4 +3,5 @@
 *.db
 expense-logger
 expenses
-
+# Vim temp files
+*.sw?
