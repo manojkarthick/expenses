@@ -6,16 +6,29 @@ An interactive command line expense logger. Answer a series of questions to log 
 ### Recommended method
 You can download pre-built binaries for Linux, macOS and Windows [here](https://github.com/manojkarthick/expenses/releases). Just add the binary to your path and you're good to go!
 
-### Alternative method
+### Alternative methods
+
 Alternatively, if you have go installed, you can use go get to directly download the package from the master branch:
-```
+```shell script
 go get github.com/manojkarthick/expenses
 ``` 
+
+If you are a [nix](https://github.com/NixOS/nix) user, you can install expenses from [nixpkgs](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/expenses/default.nix)
+```shell script
+nix-env --install expenses
+```
+
+or, if you manager your installation using [home-manager](https://github.com/nix-community/home-manager), add to your `home.packages`:
+```
+home.packages = [
+    pkgs.expenses
+]; 
+```
 
 ### Building from source
 You can use the Makefile present in the directory to build the project. Make sure you have Golang v1.14.x installed on your system.
 
-```
+```shell script
 git clone https://github.com/manojkarthick/expenses.git
 cd expenses
 make dev-build
@@ -44,7 +57,7 @@ View the tool in action here:
 ### Available Commands
 Run `expenses help` to view the list of commands available:
 
-```
+```shell script
 A simple command line utility to log your expenses
 
 Usage:
