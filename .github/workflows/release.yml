@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # update on new release
-      EXPENSES_VERSION: "0.2.1"
+      EXPENSES_VERSION: "0.2.2"
     steps:
       - name: Checkout
         uses: actions/checkout@v1
