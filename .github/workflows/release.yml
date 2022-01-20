@@ -11,7 +11,7 @@ jobs:
   release:
     strategy:
       matrix:
-        go_version: [ 1.14.x ]
+        go_version: [ 1.17.x ]
     runs-on: ubuntu-latest
     env:
       # update on new release
@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Set up Go 1.14
+      - name: Set up Go 1.17
         uses: actions/setup-go@v1
         with:
           go-version: ${{ matrix.go_version }}
