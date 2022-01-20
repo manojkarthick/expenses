@@ -34,7 +34,7 @@ jobs:
           v: true
           x: false
           # update on new release
-          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.1
+          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.3
       - name: Updated build artifact names
         run: |
           echo "Updated artifact names to use common naming scheme"
