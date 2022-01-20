@@ -11,7 +11,7 @@ jobs:
   release:
     strategy:
       matrix:
-        go_version: [ 1.14.x ]
+        go_version: [ 1.17.x ]
     runs-on: ubuntu-latest
     env:
       # update on new release
@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Set up Go 1.14
+      - name: Set up Go 1.17
         uses: actions/setup-go@v1
         with:
           go-version: ${{ matrix.go_version }}
@@ -30,11 +30,11 @@ jobs:
           go_version: ${{ matrix.go_version }}
           dest: build
           prefix: expenses
-          targets: windows/amd64,linux/amd64,darwin/amd64
+          targets: windows/amd64,linux/amd64,darwin/amd64,darwin/arm64
           v: true
           x: false
           # update on new release
-          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.1
+          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.3
       - name: Updated build artifact names
         run: |
           echo "Updated artifact names to use common naming scheme"
