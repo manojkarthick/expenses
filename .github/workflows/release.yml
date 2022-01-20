@@ -30,7 +30,7 @@ jobs:
           go_version: ${{ matrix.go_version }}
           dest: build
           prefix: expenses
-          targets: windows/amd64,linux/amd64,darwin/amd64
+          targets: windows/amd64,linux/amd64,darwin/amd64,darwin/arm64
           v: true
           x: false
           # update on new release
