@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # update on new release
-      EXPENSES_VERSION: "0.2.2"
+      EXPENSES_VERSION: "0.2.3"
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -39,7 +39,8 @@ jobs:
         run: |
           echo "Updated artifact names to use common naming scheme"
           ls -al build/
-          mv build/expenses-darwin-10.6-amd64 build/expenses-${EXPENSES_VERSION}-macos-amd64
+          mv build/expenses-darwin-10.16-amd64 build/expenses-${EXPENSES_VERSION}-macos-amd64
+          mv build/expenses-darwin-10.16-arm64 build/expenses-${EXPENSES_VERSION}-macos-arm64
           mv build/expenses-linux-amd64 build/expenses-${EXPENSES_VERSION}-linux-amd64
           mv build/expenses-windows-4.0-amd64.exe build/expenses-${EXPENSES_VERSION}-windows-amd64.exe
       - name: Create Release
