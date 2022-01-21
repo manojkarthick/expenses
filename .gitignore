@@ -5,3 +5,4 @@ expense-logger
 expenses
 # Vim temp files
 *.sw?
+.release-env
