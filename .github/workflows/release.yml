@@ -37,7 +37,6 @@ jobs:
         run: make release
 
   universal:
-    if: github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: release
     steps:
@@ -52,6 +51,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: expenses_darwin_universal.tar.gz
+          file: universal/expenses*.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
+          file_glob: true
