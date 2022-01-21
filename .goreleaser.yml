@@ -1,0 +1,87 @@
+builds:
+  - id: expenses-darwin-amd64
+    binary: expenses
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    env:
+      - CC=o64-clang
+      - CXX=o64-clang++
+    ldflags:
+      - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
+  - id: expenses-darwin-arm64
+    binary: expenses
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    env:
+      - CC=oa64-clang
+      - CXX=oa64-clang++
+    ldflags:
+      - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"  
+  - id: expenses-linux-amd64
+    binary: expenses
+    goarch:
+      - amd64
+    goos:
+      - linux
+    ldflags:
+      - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
+  - id: expenses-linux-arm64
+    binary: expenses
+    goarch:
+      - arm64
+    goos:
+      - linux
+    env:
+      - CC=aarch64-linux-gnu-gcc
+      - CXX=aarch64-linux-gnu-g++
+    ldflags:
+      - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
+  - id: expenses-windows-amd64
+    binary: expenses
+    goarch:
+      - amd64
+    goos:
+      - windows
+    env:
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+    flags:
+      - -buildmode=exe
+    ldflags:
+      - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
+archives:
+  - id: expenses
+    builds:
+      - expenses-darwin-amd64
+      - expenses-darwin-arm64
+      - expenses-linux-arm64
+      - expenses-linux-amd64
+      - expenses-windows-amd64
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    replacements:
+      amd64: x64
+      386: i386
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+release:
+  github:
+    owner: manojkarthick
+    name: expenses
+  prerelease: auto
+  draft: false
