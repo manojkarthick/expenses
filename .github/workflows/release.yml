@@ -7,7 +7,8 @@ on:
       - 'v*'
 
 jobs:
-  releaser:
+  release-dry-run:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - 
@@ -19,6 +20,16 @@ jobs:
         name: Release dry run
         run: make release-dry-run
       
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: Setup release environment
         run: |-
           echo 'GITHUB_TOKEN=${{secrets.GITHUB_TOKEN}}' > .release-env
