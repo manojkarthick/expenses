@@ -1,13 +1,11 @@
 PACKAGE_NAME := github.com/manojkarthick/expenses
-GOLANG_CROSS_VERSION  ?= latest
+GOLANG_VERSION := 1.17.5
+GOLANG_CROSS_VERSION := v$(GOLANG_VERSION)
 
 VERSION := $(shell git tag | grep ^v | sort -V | tail -n 1)
 LDFLAGS = -ldflags "-X github.com/manojkarthick/expenses/cmd.Version=${VERSION}"
 TIMESTAMP := $(shell date +%Y%m%d-%H%M%S)
 DEVLDFLAGS = -ldflags "-X github.com/manojkarthick/expenses/cmd.Version=dev-${TIMESTAMP}"
-
-SYSROOT_DIR     ?= sysroots
-SYSROOT_ARCHIVE ?= sysroots.tar.bz2
 
 .PHONY: start
 start:
@@ -35,6 +33,7 @@ release-dry-run:
 		--privileged \
 		-e CGO_ENABLED=1 \
 		-e PACKAGE_VERSION=$(VERSION) \
+		-e GOLANG_VERSION=$(GOLANG_VERSION) \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v `pwd`:/go/src/$(PACKAGE_NAME) \
 		-v `pwd`/sysroot:/sysroot \
@@ -52,6 +51,7 @@ release:
 		--rm \
 		--privileged \
 		-e CGO_ENABLED=1 \
+		-e GOLANG_VERSION=$(GOLANG_VERSION) \
 		-e PACKAGE_VERSION=$(VERSION) \
 		--env-file .release-env \
 		-v /var/run/docker.sock:/var/run/docker.sock \
