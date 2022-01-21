@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
-	"github.com/olekukonko/tablewriter"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/manojkarthick/expenses/utils"
+	"github.com/olekukonko/tablewriter"
+
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/manojkarthick/expenses/utils"
 	_ "github.com/mattn/go-sqlite3"
 	_ "github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -184,8 +185,7 @@ func (t *TransactionInfo) askQuestionsToUser() {
 				Message: PromptCategory,
 				Options: config.Categories,
 			},
-			Validate:  survey.Required,
-			Transform: survey.Title,
+			Validate: survey.Required,
 		},
 		{
 			Name: NameSource,
@@ -193,8 +193,7 @@ func (t *TransactionInfo) askQuestionsToUser() {
 				Message: PromptSource,
 				Options: config.Funds,
 			},
-			Validate:  survey.Required,
-			Transform: survey.Title,
+			Validate: survey.Required,
 		},
 		{
 			Name: NameNotes,
@@ -209,8 +208,7 @@ func (t *TransactionInfo) askQuestionsToUser() {
 				Message: PromptDate,
 				Options: []string{DateToday, DateYesterday, DateDayBefore, DateOther},
 			},
-			Transform: survey.Title,
-			Validate:  survey.Required,
+			Validate: survey.Required,
 		},
 	}
 
