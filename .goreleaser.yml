@@ -1,35 +1,41 @@
 builds:
-  - id: expenses-darwin-amd64
+  - id: darwin-amd64
     binary: expenses
-    goos:
-      - darwin
     goarch:
       - amd64
+    goos:
+      - darwin
     env:
       - CC=o64-clang
       - CXX=o64-clang++
+    flags:
+      - "-mod=readonly"
     ldflags:
       - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
-  - id: expenses-darwin-arm64
+  - id: darwin-arm64
     binary: expenses
-    goos:
-      - darwin
     goarch:
       - arm64
+    goos:
+      - darwin
     env:
       - CC=oa64-clang
       - CXX=oa64-clang++
+    flags:
+      - "-mod=readonly"
     ldflags:
       - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"  
-  - id: expenses-linux-amd64
+  - id: linux-amd64
     binary: expenses
     goarch:
       - amd64
     goos:
       - linux
+    flags:
+      - "-mod=readonly"
     ldflags:
       - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
-  - id: expenses-linux-arm64
+  - id: linux-arm64
     binary: expenses
     goarch:
       - arm64
@@ -38,9 +44,11 @@ builds:
     env:
       - CC=aarch64-linux-gnu-gcc
       - CXX=aarch64-linux-gnu-g++
+    flags:
+      - "-mod=readonly"
     ldflags:
       - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
-  - id: expenses-windows-amd64
+  - id: windows-amd64
     binary: expenses
     goarch:
       - amd64
@@ -50,25 +58,22 @@ builds:
       - CC=x86_64-w64-mingw32-gcc
       - CXX=x86_64-w64-mingw32-g++
     flags:
+      - "-mod=readonly"
       - -buildmode=exe
     ldflags:
       - -s -w -X "github.com/manojkarthick/expenses/cmd.Version={{ .Env.PACKAGE_VERSION }}"
 archives:
   - id: expenses
     builds:
-      - expenses-darwin-amd64
-      - expenses-darwin-arm64
-      - expenses-linux-arm64
-      - expenses-linux-amd64
-      - expenses-windows-amd64
+      - darwin-amd64
+      - darwin-arm64
+      - linux-arm64
+      - linux-amd64
+      - windows-amd64
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    replacements:
-      amd64: x64
-      386: i386
     format_overrides:
       - goos: windows
         format: zip
-
 checksum:
   name_template: 'checksums.txt'
 snapshot:
