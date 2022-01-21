@@ -1,62 +1,27 @@
-# .github/workflows/release.yaml
-
 name: release
 
 on:
+  pull_request:
   push:
     tags:
       - 'v*'
 
 jobs:
-  release:
-    strategy:
-      matrix:
-        go_version: [ 1.17.x ]
+  releaser:
     runs-on: ubuntu-latest
-    env:
-      # update on new release
-      EXPENSES_VERSION: "0.2.3"
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Set up Go 1.17
-        uses: actions/setup-go@v1
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
         with:
-          go-version: ${{ matrix.go_version }}
-      - name: Build with xgo
-        uses: crazy-max/ghaction-xgo@v1
-        with:
-          xgo_version: latest
-          go_version: ${{ matrix.go_version }}
-          dest: build
-          prefix: expenses
-          targets: windows/amd64,linux/amd64,darwin/amd64,darwin/arm64
-          v: true
-          x: false
-          # update on new release
-          ldflags: -s -w -X github.com/manojkarthick/expenses/cmd.Version=0.2.3
-      - name: Updated build artifact names
-        run: |
-          echo "Updated artifact names to use common naming scheme"
-          ls -al build/
-          mv build/expenses-darwin-10.16-amd64 build/expenses-${EXPENSES_VERSION}-macos-amd64
-          mv build/expenses-darwin-10.16-arm64 build/expenses-${EXPENSES_VERSION}-macos-arm64
-          mv build/expenses-linux-amd64 build/expenses-${EXPENSES_VERSION}-linux-amd64
-          mv build/expenses-windows-4.0-amd64.exe build/expenses-${EXPENSES_VERSION}-windows-amd64.exe
-      - name: Create Release
-        uses: actions/create-release@v1.0.0
-        id: create_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Assets
-        uses: glentiki/xbin-release-action@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          assets_path: ./build
+          fetch-depth: 0
+      - 
+        name: Release dry run
+        run: make release-dry-run
+      
+      - name: Setup release environment
+        run: |-
+          echo 'GITHUB_TOKEN=${{secrets.GITHUB_TOKEN}}' > .release-env
+      
+      - name: Release publish
+        run: make release
