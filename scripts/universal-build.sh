@@ -18,7 +18,7 @@ tar -xzvf expenses-arm64.tar.gz -C arm64
 echo "Building universal binary..."
 lipo -create -output expenses amd64/expenses arm64/expenses
 mv expenses universal/
-tar -czvf "universal/expenses_${LATEST_VERSION}_darwin_universal.tar.gz" ./universal/expenses
+tar -czvf "universal/expenses_${ASSET_VERSION}_darwin_universal.tar.gz" ./universal/expenses
 
 echo "Cleaning up"
 rm -rf amd64 arm64
